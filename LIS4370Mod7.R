@@ -64,6 +64,7 @@ my_s4 <- new("Employee", name = "Bob", job_title = "Coder", pay = 30000)
 my_s4
 mode(my_s4)
 mode(slot(my_s4, "name"))
+mode(my_s4@name)
 
 # OUTPUT: 
 # > setClass("Employee", 
@@ -87,5 +88,7 @@ mode(slot(my_s4, "name"))
 # > mode(my_s4)
 # [1] "S4"
 # > mode(slot(my_s4, "name"))
+# [1] "character"
+# > mode(my_s4@name)
 # [1] "character"
 
