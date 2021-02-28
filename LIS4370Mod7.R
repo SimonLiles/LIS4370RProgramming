@@ -37,6 +37,7 @@ my_s3 <- list(name = "Bob", job_title = "Coder", pay = 30000)
 class(my_s3) <- "Employee"
 mode(my_s3)
 attributes(my_s3)
+mode(my_s3$name)
 
 # OUTPUT: 
 # > my_s3 <- list(name = "Bob", job_title = "Coder", pay = 30000)
@@ -49,6 +50,8 @@ attributes(my_s3)
 # 
 # $class
 # [1] "Employee"
+# > mode(my_s3$name)
+# [1] "character"
 
 setClass("Employee", 
          representation(
@@ -60,6 +63,7 @@ setClass("Employee",
 my_s4 <- new("Employee", name = "Bob", job_title = "Coder", pay = 30000)
 my_s4
 mode(my_s4)
+mode(slot(my_s4, "name"))
 
 # OUTPUT: 
 # > setClass("Employee", 
@@ -82,4 +86,6 @@ mode(my_s4)
 # 
 # > mode(my_s4)
 # [1] "S4"
+# > mode(slot(my_s4, "name"))
+# [1] "character"
 
