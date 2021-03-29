@@ -1,0 +1,147 @@
+---
+title: "LIS4370Mod11"
+author: "Simon Liles"
+date: "3/28/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Debugging
+
+Here is the code as it is given in the assignment page: 
+
+```{r}
+#Given Code
+tukey_multiple <- function(x) { 
+  outliers <- array(TRUE,dim=dim(x)) 
+  for (j in 1:ncol(x)) 
+  { 
+    outliers[,j] <- outliers[,j] && tukey.outlier(x[,j]) 
+  } 
+  outlier.vec <- vector(length=nrow(x)) 
+  for (i in 1:nrow(x)) 
+  { outlier.vec[i] <- all(outliers[i,]) } return(outlier.vec) }
+```
+
+While this code may be messy, I will start by running it to see what happens. We get an unexpected symbol error. Since the code is messy, I will start by cleaning up the indents and white space to improve readability. 
+
+```{r}
+#Clean up white space, indentations, etc. 
+tukey_multiple <- function(x) { 
+  outliers <- array(TRUE,dim=dim(x)) 
+  for (j in 1:ncol(x)) 
+  { 
+    outliers[,j] <- outliers[,j] && tukey.outlier(x[,j]) 
+  } 
+  
+  outlier.vec <- vector(length=nrow(x)) 
+  
+  for (i in 1:nrow(x)) { 
+    outlier.vec[i] <- all(outliers[i,]) 
+  } 
+  
+  return(outlier.vec) 
+}
+```
+
+No issues in loading the function. Now lets try testing it. For testing I am going to create a Matrix because I can see in the code it is going through the rows and columns of an object. 
+
+```{r}
+#Testing tukey_multiple()
+X <- matrix(rnorm(100), nrow = 10, ncol = 10)
+X[1,] <- 100
+
+tukey_multiple(X)
+```
+
+Hmm, says it could not find the function `tukey.outlier()`. To see where the error occured specifically, use the `traceback()` function
+
+```{r}
+traceback()
+```
+
+Not much information there, so lets google search it. The likley issue is a missing library. 
+
+Found this website: https://rdrr.io/cran/funModeling/man/tukey_outlier.html which has a function that is similar and is probably what the original author meant to use. It is apart of the funModeling package, so at the top of the function I will add a require statement. Then add the function below.  
+
+```{r}
+#Clean up white space, indentations, etc. 
+tukey_multiple <- function(x) { 
+  require(funModeling)
+  outliers <- array(TRUE,dim=dim(x)) 
+  for (j in 1:ncol(x)) 
+  { 
+    outliers[,j] <- outliers[,j] && tukey_outlier(x[,j]) 
+  } 
+  
+  outlier.vec <- vector(length=nrow(x)) 
+  
+  for (i in 1:nrow(x)) { 
+    outlier.vec[i] <- all(outliers[i,]) 
+  } 
+  
+  return(outlier.vec) 
+}
+```
+
+And then test the function with X. 
+
+```{r}
+#Testing the function
+tukey_multiple(X)
+```
+
+The function now runs without errors when a matrix is passed to the function. What if I passed a vector to the function? However it will only return `TRUE`. If you look in the call to `array`, the argument for data is just given as the boolean `TRUE` value. This is probably unintentional, so I will change it to the parameter `x`. 
+
+```{r}
+#Fix logic error in call to array() 
+tukey_multiple <- function(x) { 
+  require(funModeling)
+  outliers <- array(x,dim=dim(x)) 
+  for (j in 1:ncol(x)) 
+  { 
+    outliers[,j] <- outliers[,j] && tukey_outlier(x[,j]) 
+  } 
+  
+  outlier.vec <- vector(length=nrow(x)) 
+  
+  for (i in 1:nrow(x)) { 
+    outlier.vec[i] <- all(outliers[i,]) 
+  } 
+  
+  return(outlier.vec) 
+}
+```
+
+Now when it is tested: 
+```{r}
+tukey_multiple(X)
+```
+
+
+
+```{r}
+#Test with a vector
+x <- c(rnorm(10))
+tukey_multiple(x)
+```
+
+Another error, now lets run traceback to see where it is. 
+
+```{r}
+traceback()
+```
+
+Now we can see that the error occurs in the call to the `array()` function, and in the third line of that function. In the error message it says that dims cannot be length 0. So lets run `dim()` on the vector `x`.
+
+```{r}
+dim(x)
+```
+
+And we get `NULL`. 
+
+
+
